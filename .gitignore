@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+venv/
+*.egg-info/
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local
+.env.production
+.env.test
+
+# Docker
+*.dockerignore
+Dockerfile
+
+# Editor
+.vscode/
+.DS_Store
