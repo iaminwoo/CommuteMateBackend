@@ -17,6 +17,7 @@ app = FastAPI(title="CommuteMate API")
 # 허용할 프론트엔드 주소
 origins = [
     "http://localhost:3000",  # Next.js 개발 서버
+    "https://commute.yuruppang.store" # 운영 url
 ]
 
 app.add_middleware(
