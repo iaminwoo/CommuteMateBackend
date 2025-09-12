@@ -4,8 +4,8 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import time
-from bus import get_bus_arrival
-from weather_fetch import fetch_weather_json
+from .bus import get_bus_arrival
+from .weather_fetch import fetch_weather_json
 
 # 메모리 캐시
 cache = {}
@@ -17,7 +17,7 @@ app = FastAPI(title="CommuteMate API")
 # 허용할 프론트엔드 주소
 origins = [
     "http://localhost:3000",  # Next.js 개발 서버
-    "https://commute.yuruppang.store" # 운영 url
+    "https://commute.yuruppang.store"  # 운영 url
 ]
 
 app.add_middleware(
