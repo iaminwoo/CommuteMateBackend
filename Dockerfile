@@ -2,7 +2,7 @@
 FROM python:3.8-slim
 
 # 작업 디렉토리 생성
-WORKDIR /app
+WORKDIR /app/api
 
 # 시스템 의존 패키지 설치 (필요한 경우)
 RUN apt-get update && apt-get install -y \
