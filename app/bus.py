@@ -7,7 +7,6 @@ import re
 import pytz
 
 kst = pytz.timezone('Asia/Seoul')
-now = datetime.now(kst)
 
 load_dotenv()
 SERVICE_KEY = os.getenv("SERVICE_KEY")
@@ -72,17 +71,20 @@ def format_bus_info_json(bus):
         arrival_time = None
     elif eta_raw in ["곧 도착"]:
         eta_str = "곧 도착"
+        now = datetime.now(kst)
         arrival_time = now.strftime("%p %I:%M").replace("AM", "오전").replace("PM", "오후")
     else:
         match = re.search(r"(\d+)분(\d+)초", eta_raw)
         if match:
             minutes = int(match.group(1))
             seconds = int(match.group(2))
+            now = datetime.now(kst)
             arrival_time_dt = now + timedelta(minutes=minutes, seconds=seconds)
             eta_str = f"{minutes}분 {seconds}초"
             arrival_time = arrival_time_dt.strftime("%p %I:%M").replace("AM", "오전").replace("PM", "오후")
         else:
             eta_str = eta_raw
+            now = datetime.now(kst)
             arrival_time = now.strftime("%p %I:%M").replace("AM", "오전").replace("PM", "오후")
 
     return {

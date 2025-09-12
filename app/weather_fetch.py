@@ -7,7 +7,6 @@ from datetime import datetime, timedelta
 import pytz
 
 kst = pytz.timezone('Asia/Seoul')
-now = datetime.now(kst)
 
 load_dotenv()
 SERVICE_KEY = os.getenv("SERVICE_KEY")
@@ -15,10 +14,12 @@ NX = 62
 NY = 128
 
 def get_base_time() -> str:
+    now = datetime.now(kst)
     hour = now.hour if now.minute > 45 else now.hour - 1
     return f"{hour:02d}30"
 
 def get_base_date() -> str:
+    now = datetime.now(kst)
     if now.hour == 0 and now.minute < 45:
         yesterday = now - timedelta(days=1)
         return f"{yesterday.year}{yesterday.month:02d}{yesterday.day:02d}"
@@ -58,6 +59,7 @@ def fetch_weather_json():
         weather_by_time[time][category] = value
 
     # 현재 시각 기준으로 4시간치 반환
+    now = datetime.now(kst)
     now_hour = now.hour
     result = []
     for i in range(1, 5):
