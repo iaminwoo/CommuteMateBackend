@@ -5,6 +5,7 @@ import xmltodict
 from datetime import datetime, timedelta
 import re
 import pytz
+import time
 
 kst = pytz.timezone('Asia/Seoul')
 
@@ -18,25 +19,38 @@ crowd_map = {
     "5": "혼잡",
 }
 
+MAX_RETRY = 3  # 최대 재시도 횟수
+DELAY = 1      # 재시도 간 간격(초)
+
 
 def get_bus_arrival():
     url = f"http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRoute?serviceKey={SERVICE_KEY}&stId=106000201&busRouteId=100100178&ord=25"
 
-    response = requests.get(url)
-    if response.status_code != 200:
-        return {"error": f"API 요청 실패: {response.status_code}"}
+    for attempt in range(MAX_RETRY):
+        response = requests.get(url)
+        if response.status_code != 200:
+            continue  # 실패하면 다음 시도
+        data_dict = xmltodict.parse(response.text)
+        service_result = data_dict.get("ServiceResult") or {}
+        msg_body = service_result.get("msgBody") or {}
+        item_list = msg_body.get("itemList")
+        if item_list:  # 데이터가 있으면 바로 반환
+            return process_item_list(item_list)
+        # 데이터가 없으면 잠시 대기 후 재시도
+        time.sleep(DELAY)
+    # MAX_RETRY 이후에도 데이터 없으면 빈 리스트 반환
+    return []
 
-    data_dict = xmltodict.parse(response.text)
-    item_list = data_dict.get("ServiceResult").get("msgBody").get("itemList")
 
+def process_item_list(item_list):
     # JSON 반환용 리스트
     buses = []
     for i in range(1, 3):  # 1번, 2번 버스
         bus_info = {
-            "arrival_time": item_list[f"arrmsg{i}"],
-            "bus_no": item_list[f"plainNo{i}"],
-            "crowd_code": item_list[f"rerdie_Div{i}"],
-            "crowd_level": item_list[f"reride_Num{i}"],
+            "arrival_time": item_list.get(f"arrmsg{i}", ""),
+            "bus_no": item_list.get(f"plainNo{i}", ""),
+            "crowd_code": item_list.get(f"rerdie_Div{i}", ""),
+            "crowd_level": item_list.get(f"reride_Num{i}", ""),
         }
         buses.append(format_bus_info_json(bus_info))
 
@@ -98,5 +112,11 @@ def format_bus_info_json(bus):
 
 if __name__ == "__main__":
     import json
-    result = get_bus_arrival()
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+
+    # get_bus_arrival() 호출
+    buses = get_bus_arrival()
+
+    # 각 버스 정보 format_bus_info_json 결과 출력
+    for bus in buses:
+        print(json.dumps(bus, ensure_ascii=False, indent=2))
+
