@@ -6,6 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import time
 from .bus import get_bus_arrival
 from .weather_fetch import fetch_weather_json
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 # 메모리 캐시
 cache = {}
@@ -38,7 +41,12 @@ def bus_info():
         }
         return JSONResponse(content=result)
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        error_content = {"error": str(e)}
+
+        # 로그에 오류 응답 내용 기록
+        logger.error("응답 내용: %s", error_content)
+
+        return JSONResponse(content=error_content, status_code=500)
 
 
 def get_cached_data(key, fetch_func, expiration):
@@ -50,8 +58,3 @@ def get_cached_data(key, fetch_func, expiration):
     data = fetch_func()
     cache[key] = (data, now)
     return data
-
-
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
