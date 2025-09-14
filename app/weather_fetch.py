@@ -80,6 +80,10 @@ def fetch_weather_json():
                 is_night = False  # 낮
             else:
                 is_night = True  # 밤
+
+            # 오후 12시 낮으로 처리
+            if am_pm == '오후' and hour == 12:
+                is_night = False
         else:
             is_night = True  # 시간 정보 없으면 기본 밤
 
