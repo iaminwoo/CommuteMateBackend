@@ -5,10 +5,16 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import time
 from .bus import get_bus_arrival
+from .record_bus import init_csv, record_bus_info
 from .weather_fetch import fetch_weather_json
 import logging
+from datetime import datetime
+import pytz
+from apscheduler.schedulers.background import BackgroundScheduler
 
 logger = logging.getLogger("uvicorn.error")
+kst = pytz.timezone('Asia/Seoul')
+scheduler = BackgroundScheduler(timezone=kst)
 
 # 메모리 캐시
 cache = {}
@@ -58,3 +64,25 @@ def get_cached_data(key, fetch_func, expiration):
     data = fetch_func()
     cache[key] = (data, now)
     return data
+
+
+@app.on_event("startup")
+def startup_event():
+    init_csv()
+    start_scheduler()
+
+
+def start_scheduler():
+    # 4:50 ~ 5:10 사이 15초 간격으로 job 실행
+    start_time = datetime.now(kst).replace(hour=4, minute=50, second=0, microsecond=0)
+    end_time = datetime.now(kst).replace(hour=5, minute=10, second=0, microsecond=0)
+
+    # 스케줄러에서 15초 간격 반복
+    scheduler.add_job(
+        func=record_bus_info,
+        trigger="interval",
+        seconds=15,
+        start_date=start_time,
+        end_date=end_time
+    )
+    scheduler.start()
