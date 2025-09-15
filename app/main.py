@@ -73,16 +73,31 @@ def startup_event():
 
 
 def start_scheduler():
-    # 4:50 ~ 5:10 사이 15초 간격으로 job 실행
-    start_time = datetime.now(kst).replace(hour=4, minute=50, second=0, microsecond=0)
-    end_time = datetime.now(kst).replace(hour=5, minute=10, second=0, microsecond=0)
+    def schedule_interval_job():
+        now = datetime.now(kst)
+        start_time = now.replace(hour=4, minute=50, second=0, microsecond=0)
+        end_time = now.replace(hour=5, minute=10, second=0, microsecond=0)
 
-    # 스케줄러에서 15초 간격 반복
+        # interval job 등록
+        scheduler.add_job(
+            func=record_bus_info,
+            trigger="interval",
+            seconds=15,
+            start_date=start_time,
+            end_date=end_time,
+            id="record_bus_job",
+            replace_existing=True
+        )
+        logger.info("Interval job registered for today: %s ~ %s", start_time, end_time)
+
     scheduler.add_job(
-        func=record_bus_info,
-        trigger="interval",
-        seconds=15,
-        start_date=start_time,
-        end_date=end_time
+        func=schedule_interval_job,
+        trigger="cron",
+        hour=4,
+        minute=50,
+        id="daily_scheduler_job",
+        replace_existing=True
     )
+
     scheduler.start()
+    logger.info("Scheduler started with daily cron job")
