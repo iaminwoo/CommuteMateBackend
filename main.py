@@ -1,16 +1,18 @@
 # main.py
-
-from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from fastapi.middleware.cors import CORSMiddleware
 import time
-from .bus import get_bus_arrival
-from .record_bus import init_csv, record_bus_info
-from .weather_fetch import fetch_weather_json
+from bus import get_bus_arrival
+from record_bus import init_csv, record_bus_info
+from weather_fetch import fetch_weather_json
 import logging
 from datetime import datetime
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
+from fastapi import FastAPI
+import models
+from database import engine
+from routers import employees, dayoffs, positions
+from fastapi.middleware.cors import CORSMiddleware
 
 logger = logging.getLogger("uvicorn.error")
 kst = pytz.timezone('Asia/Seoul')
@@ -20,6 +22,8 @@ scheduler = BackgroundScheduler(timezone=kst)
 cache = {}
 BUS_CACHE_EXPIRATION = 5      # 버스 5초
 WEATHER_CACHE_EXPIRATION = 300  # 날씨 5분
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="CommuteMate API")
 
@@ -101,3 +105,7 @@ def start_scheduler():
 
     scheduler.start()
     logger.info("Scheduler started with daily cron job")
+
+app.include_router(employees.router)
+app.include_router(dayoffs.router)
+app.include_router(positions.router)

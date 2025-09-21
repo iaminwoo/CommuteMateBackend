@@ -3,9 +3,9 @@ import os
 from datetime import datetime
 import pytz
 
-from .bus import get_bus_arrival
+from bus import get_bus_arrival
 
-DATA_DIR = "/app/data"
+DATA_DIR = "./data"
 os.makedirs(DATA_DIR, exist_ok=True)
 
 CSV_FILE = os.path.join(DATA_DIR, "bus_data.csv")

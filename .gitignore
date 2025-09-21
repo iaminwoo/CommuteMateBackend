@@ -23,3 +23,5 @@ Dockerfile
 # Editor
 .vscode/
 .DS_Store
+
+schedule.db
