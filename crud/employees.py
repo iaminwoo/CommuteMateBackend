@@ -62,8 +62,9 @@ def get_employee_schedules(db: Session, date_str: str):
     sp_dict = {sp.employee_id: sp.position for sp in special_positions}
 
     for e in employees:
-        part_name = sp_dict.get(e.id, e.default_position)
-        part_dicts[part_name].append(e.name)
+        if e.name in names:
+            part_name = sp_dict.get(e.id, e.default_position)
+            part_dicts[part_name].append(e.name)
 
     employee_part = [{"part_name": p, "employees": part_dicts[p]} for p in parts]
 
