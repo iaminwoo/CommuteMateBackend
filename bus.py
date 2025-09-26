@@ -27,7 +27,7 @@ def get_bus_arrival():
     url = f"http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRoute?serviceKey={SERVICE_KEY}&stId=106000201&busRouteId=100100178&ord=25"
 
     for attempt in range(MAX_RETRY):
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         if response.status_code != 200:
             continue  # 실패하면 다음 시도
         data_dict = xmltodict.parse(response.text)

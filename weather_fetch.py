@@ -42,7 +42,7 @@ def fetch_weather_json():
         f"&nx={NX}&ny={NY}"
     )
 
-    response = requests.get(url)
+    response = requests.get(url, timeout=10)
     if response.status_code != 200:
         return {"error": f"API 요청 실패: {response.status_code}"}
 
