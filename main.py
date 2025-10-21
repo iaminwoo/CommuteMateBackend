@@ -106,6 +106,7 @@ def start_scheduler():
     scheduler.start()
     logger.info("Scheduler started with daily cron job")
 
+
 app.include_router(employees.router)
 app.include_router(dayoffs.router)
 app.include_router(positions.router)

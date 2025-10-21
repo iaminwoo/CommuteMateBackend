@@ -24,7 +24,8 @@ DELAY = 1      # 재시도 간 간격(초)
 
 
 def get_bus_arrival():
-    url = f"http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRoute?serviceKey={SERVICE_KEY}&stId=106000201&busRouteId=100100178&ord=25"
+    url = (f"http://ws.bus.go.kr/api/rest/arrive/getArrInfoByRoute?serviceKey={SERVICE_KEY}"
+           f"&stId=106000201&busRouteId=100100178&ord=25")
 
     for attempt in range(MAX_RETRY):
         response = requests.get(url, timeout=10)
@@ -72,7 +73,7 @@ def format_bus_info_json(bus):
     position_str = None
 
     # "12분22초 후[2번째 전]" 형태 분리
-    match_position = re.match(r"([\d분초\s]+).*?\[(.+)\]", arrival_msg)
+    match_position = re.match(r"([\d분초\s]+).*?\[(.+)]", arrival_msg)
     if match_position:
         eta_raw = match_position.group(1).strip()  # "12분22초"
         position_str = match_position.group(2).strip()  # "2번째 전"
@@ -114,9 +115,8 @@ if __name__ == "__main__":
     import json
 
     # get_bus_arrival() 호출
-    buses = get_bus_arrival()
+    _buses = get_bus_arrival()
 
     # 각 버스 정보 format_bus_info_json 결과 출력
-    for bus in buses:
-        print(json.dumps(bus, ensure_ascii=False, indent=2))
-
+    for _bus in _buses:
+        print(json.dumps(_bus, ensure_ascii=False, indent=2))

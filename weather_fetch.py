@@ -9,14 +9,16 @@ import pytz
 kst = pytz.timezone('Asia/Seoul')
 
 load_dotenv()
-SERVICE_KEY = os.getenv("SERVICE_KEY")
+AUTHKEY = os.getenv("AUTHKEY")
 NX = 62
 NY = 128
+
 
 def get_base_time() -> str:
     now = datetime.now(kst)
     hour = now.hour if now.minute > 45 else now.hour - 1
     return f"{hour:02d}30"
+
 
 def get_base_date() -> str:
     now = datetime.now(kst)
@@ -25,24 +27,26 @@ def get_base_date() -> str:
         return f"{yesterday.year}{yesterday.month:02d}{yesterday.day:02d}"
     return f"{now.year}{now.month:02d}{now.day:02d}"
 
+
 def format_hour(hour: int) -> str:
     period = "오전" if hour < 12 else "오후"
     hour12 = 12 if hour % 12 == 0 else hour % 12
     return f"{period} {hour12}시"
+
 
 def fetch_weather_json():
     base_time = get_base_time()
     base_date = get_base_date()
 
     url = (
-        f"https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst"
-        f"?serviceKey={SERVICE_KEY}"
-        f"&pageNo=1&numOfRows=60&dataType=JSON"
+        f"https://apihub.kma.go.kr/api/typ02/openApi/VilageFcstInfoService_2.0/getUltraSrtFcst"
+        f"?pageNo=1&numOfRows=60&dataType=JSON"
         f"&base_date={base_date}&base_time={base_time}"
         f"&nx={NX}&ny={NY}"
+        f"&authKey={AUTHKEY}"
     )
 
-    response = requests.get(url, timeout=10)
+    response = requests.get(url, timeout=30)
     if response.status_code != 200:
         return {"error": f"API 요청 실패: {response.status_code}"}
 
